@@ -1,0 +1,70 @@
+# версия синтаксиса
+version: '3'
+
+# в этом блоке мы описываем контейнеры, которые будут запускаться
+services:
+  #контейнер с Nginx
+  test_nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    image: myapp/nginx
+    container_name: test_nginx
+    # проброс портов
+    ports:
+      - "80:80"
+    volumes:
+      - ./code:/data/testsym.local
+      - ./nginx/hosts/testsym.local.conf:/etc/nginx/conf.d/default.conf
+
+    depends_on:
+      - test_php
+      - test_postgres
+
+
+
+  test_php:
+    build:
+      context: ./php
+      dockerfile: Dockerfile
+    image: myapp/php
+    container_name: test_php
+    ports:
+      - '9007:9000'
+    volumes:
+      - ./code:/data/testsym.local
+
+    depends_on:
+      - test_postgres
+
+  test_postgres:
+    image: postgres:15
+    ports:
+      - 15437:5432
+    container_name: test_postgres
+    working_dir: /data/testsym.local
+    restart: always
+    environment:
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+    volumes:
+      - dump_test:/data/testsym.local
+      - postgresql_test:/var/lib/postgresql@15/data
+
+
+  memcache:
+    image: memcached:latest
+    container_name: memcache
+    restart: always
+    ports:
+      - "11211:11211"
+
+
+#Docker Networks
+
+
+volumes:
+  dump_test:
+  postgresql_test:
+
