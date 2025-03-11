@@ -19,7 +19,6 @@ class Course implements EntityInterface
     #[ORM\Column(name: 'id', type: 'bigint', unique: true)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-
     private ?int $id = null;
 
     #[ORM\Column(type: 'string', length: 50, nullable: false)]
@@ -30,15 +29,13 @@ class Course implements EntityInterface
     #[ORM\OneToMany(mappedBy: 'course', targetEntity: 'Lesson')]
     private Collection $lessons;
 
-    #[ORM\ManyToOne(targetEntity: 'User', inversedBy: 'teachCourses')]
-    #[ORM\JoinColumn(name: 'teacher_id', referencedColumnName: 'id')]
-    private ?User $teacher;
+    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'enrolledCourses')]
+    private Collection $students;
 
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'teachCourses')]
+    #[ORM\JoinColumn(name: 'teacher_id', referencedColumnName: 'id', nullable: true)]
+    private ?User $teacher = null;
 
-    /*
-    #[ORM\ManyToMany(targetEntity: 'User', mappedBy: 'studyCourses')]
-    private Collection $users;
-*/
     #[ORM\Column(name: 'created_at', type: 'datetime', nullable: false)]
     private DateTime $createdAt;
 
@@ -52,7 +49,7 @@ class Course implements EntityInterface
     public function __construct()
     {
        $this->lessons = new ArrayCollection();
-      // $this->users = new ArrayCollection();
+       $this->students = new ArrayCollection();
     }
     public function getId(): int
     {
@@ -85,37 +82,40 @@ class Course implements EntityInterface
         }
     }
 
-    public function addUser(User $user): void
+    public function getStudents(): Collection
     {
-        if (!$this->users->contains($user)) {
-            $this->users->add($user);
-            $user->addStudyCourse($this);
-        }
-    }
-    public function deleteUser(User $user): void
-    {
-        $this->users->removeElement($user);
-    }
-    public function getUsers(): Collection
-    {
-        return $this->users;
+        return $this->students;
     }
 
-    /**
-     * @return User
-     */
+    public function addStudent(User $student): void
+    {
+        if (!$this->students->contains($student)) {
+            $this->students->add($student);
+        }
+    }
+
+    public function removeStudent(User $student): void
+    {
+        if ($this->students->contains($student)) {
+            $this->students->removeElement($student);
+        }
+    }
+
     public function getTeacher(): ?User
     {
         return $this->teacher;
     }
 
-    /**
-     * @param User $teacher
-     */
     public function setTeacher(User $teacher): void
     {
         $this->teacher = $teacher;
     }
+
+    public function removeTeacher(): void
+    {
+        $this->teacher = null;
+    }
+
 
    public function getCreatedAt(): DateTime {
         return $this->createdAt;
@@ -158,9 +158,9 @@ class Course implements EntityInterface
             'id' => $this->id,
             'title' => $this->getTitle(),
             'showUrl' => '/admin2/course/'.$this->getId(),
-           // 'teacher' => isset($this->teacher)? $this->teacher->getFullName() : null,
-           // 'lessons' => array_map(static fn(Lesson $lesson) => $lesson->toArray(), $this->lessons->toArray()),
-          //  'users' => array_map(static fn(User $user) => $user->toArray(), $this->users->toArray()),
+            'teacher' => isset($this->teacher)? $this->teacher->getFullName() : null,
+            'lessons' => array_map(static fn(Lesson $lesson) => $lesson->toArray(), $this->lessons->toArray()),
+            'students' => array_map(static fn(User $user) => $user->toArray(), $this->students->toArray()),
             'createdAt' => $this->createdAt->format('Y-m-d H:i:s'),
             'updatedAt' => $this->updatedAt->format('Y-m-d H:i:s'),
         ];

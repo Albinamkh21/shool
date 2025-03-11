@@ -3,6 +3,7 @@
 
 namespace App\Controller\API\Course;
 
+use App\Domain\DTO\CourseInputDTO;
 use App\Domain\Entity\Course;
 use App\Domain\Service\CourseService;
 
@@ -12,9 +13,9 @@ class Manager
     {
     }
 
-    public function create(string $title): ?Course
+    public function create(CourseInputDTO $courseDTO): ?Course
     {
-        return $this->courseService->create($title);
+        return $this->courseService->create($courseDTO);
     }
     public function deleteCourseById(int $courseId): bool
     {
@@ -38,6 +39,35 @@ class Manager
         $course = $this->courseService->updateCourseTitle($courseId, $title);
 
         return $course instanceof Course;
+    }
+
+    public function addStudent(int $courseId, int $studentId): ?Course
+    {
+        $course = $this->courseService->addStudent($courseId, $studentId);
+
+        return $course ;
+    }
+
+    public function deleteStudent(int $courseId, int $studentId): ?Course
+    {
+        $course = $this->courseService->deleteStudent($courseId, $studentId);
+
+        return $course ;
+    }
+
+    public function setTeacher(int $courseId, int $userId): ?Course
+    {
+        $course = $this->courseService->setTeacher($courseId, $userId);
+
+        return $course ;
+    }
+
+
+    public function deleteTeacher(int $courseId, int $userId): ?Course
+    {
+        $course = $this->courseService->deleteTeacher($courseId, $userId);
+
+        return $course ;
     }
 
 

@@ -3,7 +3,7 @@
 namespace App\Domain\Service;
 
 
-use App\Controller\API\User\Input\CreateUserDTO;
+use App\Domain\DTO\CreateUserDTO;
 use App\Domain\Entity\User;
 use App\Infrastructure\Repository\UserRepository;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -32,6 +32,29 @@ class UserService
 
         return $user;
     }
+    public function update(int $userId, CreateUserDTO $createUserDTO): ?User
+    {
+
+        $user = $this->userRepository->find($userId);
+        if (!($user instanceof User)) {
+            return null;
+        }
+        $user->setLogin($createUserDTO->login);
+        $user->setFullName($createUserDTO->fullName);
+        $user->setPassword($this->userPasswordHasher->hashPassword($user, $createUserDTO->password));
+        $user->setPhone($createUserDTO->phone);
+        $user->setEmail($createUserDTO->email);
+        $user->setAge($createUserDTO->age);
+        $user->setIsActive($createUserDTO->isActive);
+        $user->setRoles($createUserDTO->roles);
+        $user->setUpdatedAt();
+
+        $this->userRepository->update($user);
+
+        return $user;
+
+    }
+
     public function removeById(int $userId): bool
     {
         $user = $this->userRepository->find($userId);
@@ -40,7 +63,7 @@ class UserService
 
             return true;
         }
-
+        
         return false;
     }
     public function findUserById(int $id): ?User
@@ -58,10 +81,12 @@ class UserService
     /**
      * @return User[]
      */
+
     public function findUsersByLogin(string $login): array
     {
         return $this->userRepository->findUsersByLogin($login);
     }
+
     public function findUserByLogin(string $login): ?User
     {
         $users = $this->userRepository->findUsersByLogin($login);
@@ -72,7 +97,8 @@ class UserService
     {
         $user = $this->userRepository->find($userId);
         if (!($user instanceof User)) {
-            return null;
+           // return null;
+            throw new \Exception('User not found');
         }
         $this->userRepository->updateLogin($user, $login);
 

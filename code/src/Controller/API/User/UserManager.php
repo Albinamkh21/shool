@@ -8,8 +8,9 @@ namespace App\Controller\API\User;
 
 use App\Domain\Entity\User;
 use App\Domain\Service\UserService;
-use App\Controller\API\User\Input\CreateUserDTO;
-use App\Controller\API\User\Output\CreatedUserDTO;
+use App\Domain\DTO\CreateUserDTO;
+use App\Domain\DTO\CreatedUserDTO;
+
 
 class UserManager
 {

@@ -11,15 +11,15 @@ use App\Domain\Entity\Lesson;
 
 class LessonRepository extends AbstractRepository
 {
-    public function create(Lesson $lesson): int
+    public function create(Lesson $lesson): Lesson
     {
         return $this->store($lesson);
     }
 
     public function remove(Lesson $lesson): void
     {
-        $lesson->setDeletedAt();
-        $this->flush();
+        $this->delete($lesson);
+
     }
     public function find(int $lessonId): ?Lesson
     {
@@ -43,6 +43,7 @@ class LessonRepository extends AbstractRepository
         $lesson->setTitle($title);
         $this->flush();
     }
+
 
     /**
      * @return Lesson[]

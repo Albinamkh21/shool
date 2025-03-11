@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\API\User\Output;
+namespace App\Domain\DTO;
 
 use App\Controller\DTO\OutputDTOInterface;
 

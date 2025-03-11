@@ -2,6 +2,7 @@
 
 namespace App\Domain\Entity;
 
+use App\Domain\Entity\LessonContent\LessonContent;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -30,6 +31,14 @@ class Lesson implements EntityInterface
     #[Assert\Length(max: 50)]
     private string $title;
 
+    #[ORM\Column(name: 'orderNum', type: 'integer')]
+    private int $order;
+
+
+
+
+    #[ORM\OneToMany(mappedBy: "lesson", targetEntity: LessonContent::class, cascade: ["persist", "remove"], orphanRemoval: true)]
+    private Collection $contents;
 
     /*
     #[ORM\OneToMany(mappedBy: 'lesson', targetEntity: 'Task')]
@@ -57,6 +66,8 @@ class Lesson implements EntityInterface
 
     public function __construct()
     {
+
+        $this->contents = new ArrayCollection();
         /*
         $this->tasks = new ArrayCollection();
         $this->revisions = new ArrayCollection();
@@ -97,6 +108,39 @@ class Lesson implements EntityInterface
     public function setCourse(Course $course): void
     {
         $this->course = $course;
+    }
+
+    /**
+     * @return int
+     */
+    public function getOrder(): int
+    {
+        return $this->order;
+    }
+
+    /**
+     * @param int $order
+     */
+    public function setOrder(int $order): void
+    {
+        $this->order = $order;
+    }
+
+    public function getContents(): Collection
+    {
+        return $this->contents;
+    }
+
+    public function addContent(LessonContent $content): void
+    {
+        if (!$this->contents->contains($content)) {
+            $this->contents->add($content);
+        }
+    }
+
+    public function removeContent(LessonContent $content): void
+    {
+        $this->contents->removeElement($content);
     }
 /*
     public function getTasks(): Collection
@@ -180,6 +224,8 @@ class Lesson implements EntityInterface
             'id' => $this->id,
             'course' => $this->course->getTitle(),
             'title'  => $this->getTitle(),
+            'order'  => $this->getOrder(),
+            'contents' =>  array_map(static fn(LessonContent $content) => $content->toArray(), $this->getContents()->toArray()),
             'createdAt' => $this->createdAt->format('Y-m-d H:i:s'),
             'updatedAt' => $this->updatedAt->format('Y-m-d H:i:s')
         ];
@@ -187,7 +233,7 @@ class Lesson implements EntityInterface
     public function toArrayShort(): array
     {
         return [
-            'title'  => $this->getCurrentRevision()->getTitle(),
+            'title'  => $this->getTitle(), //$this->getCurrentRevision()->getTitle(),
             'course' => $this->course->getTitle(),
 
         ];

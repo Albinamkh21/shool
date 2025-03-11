@@ -2,18 +2,23 @@
 
 namespace App\Controller\API\User;
 
-use App\Controller\API\User\Input\CreateUserDTO;
+use App\Domain\DTO\CreateUserDTO;
 use App\Domain\Entity\User;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 #[AsController]
 class UserController
 {
-    public function __construct(private readonly UserManager $manager) {
+    public function __construct(private readonly UserManager $manager,
+                                private ValidatorInterface $validator,
+                                private TranslatorInterface $translator,
+    ) {
     }
 
     #[Route(path: 'api/user', methods: ['POST'])]
@@ -30,7 +35,19 @@ class UserController
         $isActive = $request->request->get('isActive');
         $roles = $request->request->get('roles');
         $roles = json_decode($roles, true, 512, JSON_THROW_ON_ERROR);
-        $createUserDTO = new CreateUserDTO($login, $fullName, $email, $phone, $password, $age, $isActive, $roles);
+
+        $createUserDTO = new CreateUserDTO($login ?? '', $fullName ?? '', $email ?? "", $phone, $password, $age, $isActive, $roles);
+
+        $errors = $this->validator->validate($createUserDTO);
+        if (count($errors) > 0) {
+            $errorMessages = [];
+            foreach ($errors as $error) {
+                $errorMessages[] = $this->translator->trans($error->getMessage(), [], 'messages');
+            }
+            return new JsonResponse(['errors' => $errorMessages], 400);
+        }
+
+
         $user = $this->manager->create($createUserDTO);
         if ($user === null) {
             return new JsonResponse(null, Response::HTTP_BAD_REQUEST);

@@ -7,27 +7,51 @@ use App\Domain\Entity\Lesson;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
+use App\Domain\DTO\LessonInputDTO;
 
 #[AsController]
 class Controller
 {
-    public function __construct(private readonly Manager $manager) {
+    public function __construct(
+        private readonly Manager $manager,
+        private ValidatorInterface $validator,
+        private TranslatorInterface $translator,
+    ) {
     }
 
     #[Route(path: 'api/lesson', methods: ['POST'])]
     public function create(Request $request): Response
     {
-        $title = $request->request->get('title');
-        $courseId = $request->request->get('courseId');
+        $data =  $request->request->all();
+        $lessonDto = new LessonInputDTO(
+            $data['title'] ?? '',
+            $data['description'] ?? '',
+            $data['courseId'] ?? 0,
+            $data['order'] ?? 0,
+            json_decode($data['contents'] ?? '', true)
+        );
 
-        $lesson = $this->manager->create($title, $courseId);
+
+        $errors = $this->validator->validate($lessonDto);
+        if (count($errors) > 0) {
+            $errorMessages = [];
+            foreach ($errors as $error) {
+                $errorMessages[] = $this->translator->trans($error->getMessage(), [], 'messages');
+            }
+            return new JsonResponse(['errors' => $errorMessages], 400);
+        }
+
+        $lesson = $this->manager->create($lessonDto);
         if ($lesson === null) {
             return new JsonResponse(null, Response::HTTP_BAD_REQUEST);
         }
 
         return new JsonResponse($lesson->toArray());
+
     }
 
     #[Route(path: 'api/lesson', methods: ['DELETE'])]

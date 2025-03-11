@@ -3,6 +3,7 @@
 
 namespace App\Controller\API\Lesson;
 
+use App\Domain\DTO\LessonInputDTO;
 use App\Domain\Entity\Course;
 use App\Domain\Entity\Lesson;
 use App\Domain\Service\LessonService;
@@ -13,9 +14,9 @@ class Manager
     {
     }
 
-    public function create(string $title, int $courseId): ?Lesson
+    public function create(LessonInputDTO $lessonDTO): ?Lesson
     {
-        return $this->lessonService->create($title, $courseId);
+        return $this->lessonService->create($lessonDTO);
     }
     public function deleteLessonById(int $lessonId): bool
     {

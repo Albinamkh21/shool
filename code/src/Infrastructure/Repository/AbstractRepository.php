@@ -23,11 +23,26 @@ abstract class AbstractRepository
     /**
      * @param T $entity
      */
-    protected function store(EntityInterface $entity): int
+    protected function store(EntityInterface $entity): EntityInterface
     {
         $this->entityManager->persist($entity);
         $this->flush();
 
-        return $entity->getId();
+        return $entity;
+    }
+    protected function delete(EntityInterface $entity): bool
+    {
+        $this->entityManager->remove($entity);
+        $this->entityManager->flush();
+
+        return true;
+    }
+    public function update(EntityInterface $entity): EntityInterface
+    {
+        $entityManager = $this->getEntityManager();
+        $entityManager->persist($entity);
+        $entityManager->flush();
+
+        return $entity;
     }
 }

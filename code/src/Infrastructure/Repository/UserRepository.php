@@ -8,14 +8,15 @@ namespace App\Infrastructure\Repository;
 use App\Domain\Entity\User;
 class UserRepository extends AbstractRepository
 {
-    public function create(User $user): int
+    public function create(User $user): User
     {
         return $this->store($user);
     }
     public function remove(User $user): void
     {
-        $user->setDeletedAt();
-        $this->flush();
+       // $user->setDeletedAt();
+        //$this->flush();
+        $this->delete($user);
     }
     public function find(int $userId): ?User
     {
@@ -50,6 +51,15 @@ class UserRepository extends AbstractRepository
 
         return $token;
     }
+
+
+    /*
+    public function updateUser(User $user): User
+    {
+        return $this->update($user);
+    }
+    */
+
     public function clearUserToken(User $user): void
     {
         $user->setToken(null);

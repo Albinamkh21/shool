@@ -3,6 +3,8 @@
 namespace App\Domain\Entity;
 
 use DateTime;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -17,7 +19,7 @@ class User implements EntityInterface, UserInterface, PasswordAuthenticatedUserI
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     private ?int $id = null;
 
-    #[ORM\Column(type: 'string', length: 32, nullable: false)]
+    #[ORM\Column(type: 'string', length: 32, nullable: false, unique: true)]
     private string $login;
 
     #[ORM\Column(type: 'string', length: 100, nullable: false)]
@@ -41,6 +43,18 @@ class User implements EntityInterface, UserInterface, PasswordAuthenticatedUserI
     #[ORM\Column(type: 'json', length: 1024, nullable: false)]
     private array $roles = [];
 
+
+    #[ORM\ManyToMany(targetEntity: Course::class, inversedBy: 'students')]
+    #[ORM\JoinTable(name: 'student_course')]
+    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id')]
+    #[ORM\InverseJoinColumn(name: 'course_id', referencedColumnName: 'id')]
+    private Collection $enrolledCourses;
+
+    #[ORM\OneToMany(mappedBy: 'teacher', targetEntity: Course::class)]
+    private Collection $teachCourses;
+
+
+
     #[ORM\Column(type: 'string', length: 32, unique: true, nullable: true)]
     private ?string $token = null;
 
@@ -53,6 +67,13 @@ class User implements EntityInterface, UserInterface, PasswordAuthenticatedUserI
     #[ORM\Column(name: 'deleted_at', type: 'datetime', nullable: true)]
     private DateTime $deletedAt;
 
+
+
+    public function __construct()
+    {
+        $this->enrolledCourses = new ArrayCollection();
+        $this->teachCourses = new ArrayCollection();
+    }
     public function getId(): int
     {
         return $this->id;
@@ -169,6 +190,41 @@ class User implements EntityInterface, UserInterface, PasswordAuthenticatedUserI
         $this->phone = $phone;
     }
 
+    public function enrollInCourse(Course $course): void
+    {
+        if (!$this->enrolledCourses->contains($course)) {
+            $this->enrolledCourses->add($course);
+            $course->addStudent($this);
+        }
+    }
+
+    public function unenrollFromCourse(Course $course): void
+    {
+        if ($this->enrolledCourses->contains($course)) {
+            $this->enrolledCourses->removeElement($course);
+            $course->removeStudent($this);
+        }
+    }
+
+    public function addTeachingCourse(Course $course): void
+    {
+        if (!$this->teachCourses->contains($course)) {
+            $this->teachCourses->add($course);
+            $course->setTeacher($this);
+        }
+    }
+
+    public function removeTeachingCourse(Course $course): void
+    {
+        if ($this->teachCourses->contains($course)) {
+            $this->teachCourses->removeElement($course);
+            $course->removeTeacher();
+        }
+    }
+
+
+
+
     /**
      * @return string[]
      */
@@ -244,7 +300,9 @@ class User implements EntityInterface, UserInterface, PasswordAuthenticatedUserI
     {
         return [
             'id' => $this->id,
-            'login' => $this->login,
+            'login' => $this->getLogin(),
+            'name' => $this->getFullName(),
+            'roles' => $this->getRoles(),
             'createdAt' => $this->createdAt->format('Y-m-d H:i:s'),
             'updatedAt' => $this->updatedAt->format('Y-m-d H:i:s'),
         ];

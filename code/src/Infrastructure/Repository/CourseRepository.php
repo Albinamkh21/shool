@@ -6,20 +6,23 @@ namespace App\Infrastructure\Repository;
  * @extends AbstractRepository<Course>
  */
 use App\Domain\Entity\Course;
+use App\Domain\Entity\User;
 
 class CourseRepository  extends AbstractRepository
 {
 
 
-    public function create(Course $course): int
+    public function create(Course $course): Course
     {
         return $this->store($course);
     }
 
-    public function remove(Course $course): void
+    public function remove(Course $course): bool
+
     {
-        $course->setDeletedAt();
-        $this->flush();
+       return  $this->delete($course);
+        //$course->setDeletedAt();
+        //$this->flush();
     }
     public function find(int $courseId): ?Course
     {
@@ -44,6 +47,35 @@ class CourseRepository  extends AbstractRepository
         $course->setTitle($title);
         $this->flush();
     }
+    public function addStudent(Course $course, User $user): void
+    {
+        $course->addStudent($user);
+        $user->enrollInCourse($course);
+        $this->flush();
+    }
+
+    public function deleteStudent(Course $course, User $user): void
+    {
+        $course->removeStudent($user);
+        $user->unenrollFromCourse($course);
+        $this->flush();
+    }
+
+
+    public function setTeacher(Course $course, User $user): void
+    {
+        $course->setTeacher($user);
+        $user->addTeachingCourse($course);
+        $this->flush();
+    }
+    public function deleteTeacher(Course $course, User $user): void
+    {
+        $course->removeTeacher($user);
+        $user->removeTeachingCourse($course);
+        $this->flush();
+    }
+
+
 
     /**
      * @return Course[]
