@@ -39,9 +39,9 @@ abstract class AbstractRepository
     }
     public function update(EntityInterface $entity): EntityInterface
     {
-        $entityManager = $this->getEntityManager();
-        $entityManager->persist($entity);
-        $entityManager->flush();
+
+        $this->entityManager->persist($entity);
+        $this->entityManager->flush();
 
         return $entity;
     }

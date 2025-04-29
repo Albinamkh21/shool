@@ -25,3 +25,20 @@ services:
     App\Application\Security\AuthService:
         arguments:
             $tokenTTL: '%env(JWT_TTL_SEC)%'
+
+    App\Infrastructure\Symfony\RequestResolver\DtoResolver:
+        tags: [ 'controller.argument_value_resolver' ]
+
+
+    App\Infrastructure\Symfony\EventListener\ExceptionListener:
+        tags:
+            - { name: kernel.event_listener, event: kernel.exception }
+
+
+    App\Controller\API\AbstractBaseController:
+        calls:
+            - [ setTranslator, [ '@translator' ] ]
+
+
+
+

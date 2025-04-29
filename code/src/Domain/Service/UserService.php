@@ -82,16 +82,16 @@ class UserService
      * @return User[]
      */
 
-    public function findUsersByLogin(string $login): array
+    public function findUsersByLogin(string $login): ?User
     {
         return $this->userRepository->findUsersByLogin($login);
     }
 
     public function findUserByLogin(string $login): ?User
     {
-        $users = $this->userRepository->findUsersByLogin($login);
+        $user = $this->userRepository->findUsersByLogin($login);
 
-        return $users[0] ?? null;
+        return $user ?? null;
     }
     public function updateUserLogin(int $userId, string $login): ?User
     {

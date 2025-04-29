@@ -37,7 +37,7 @@ class CourseServiceTest extends TestCase
             ->willReturnCallback(function (Course $course) {
                 // Имитируем присвоение id при сохранении
                 $course->setId(1);
-                return 1;
+                return $course;
             });
 
         // Инициализируем сервис с замоканным репозиторием

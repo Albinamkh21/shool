@@ -11,19 +11,25 @@ class CourseInputDTO
                 maxMessage: "course.title.max_length",
                 minMessage: "course.title.less_than",
     )]
-
     public string $title;
 
     #[Assert\NotBlank(message: "course.description.not_blank")]
     public string $description;
 
+    #[Assert\Length(max: 9)]
+    public string $price = '';
+
+
+
 /*    #[Assert\Type("array", message: "course.contents.type")]
     public array $contents;
 */
-    public function __construct(string $title, string $description)
+
+    public function __construct(string $title, string $description, string $price = '')
     {
         $this->title = $title;
         $this->description = $description;
+        $this->price = $price;
 
     }
 }

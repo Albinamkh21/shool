@@ -11,18 +11,22 @@ class LessonInputDTO
                 maxMessage: "lesson.title.max_length",
                 minMessage: "lesson.title.less_than",
     )]
-
     public string $title;
 
+
     #[Assert\NotBlank(message: "lesson.description.not_blank")]
-    public string $description;
-    #[Assert\NotBlank(message: "lesson.order.not_blank")]
     #[Assert\GreaterThan(
         value: 0,
-        message: "lesson.order.greater_than"
+        message: "lesson.description.greater_than"
 
     )]
+    public string $description;
+
+
+    #[Assert\Type("int", message: "lesson.order.type")]
     public  int $order;
+
+    #[Assert\Type("int", message: "lesson.courseId.type")]
     #[Assert\NotBlank(message: "lesson.course.not_blank")]
     #[Assert\GreaterThan(
         value: 0,

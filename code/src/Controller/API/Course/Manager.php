@@ -5,11 +5,18 @@ namespace App\Controller\API\Course;
 
 use App\Domain\DTO\CourseInputDTO;
 use App\Domain\Entity\Course;
+use App\Domain\Entity\User;
 use App\Domain\Service\CourseService;
+use App\Domain\Service\PaymentService;
+use App\Domain\Service\UserService;
 
 class Manager
 {
-    public function __construct(private readonly CourseService $courseService)
+    public function __construct(
+        private readonly CourseService $courseService,
+        private readonly UserService $userService,
+        private readonly PaymentService $paymentService,
+    )
     {
     }
 
@@ -41,6 +48,13 @@ class Manager
         return $course instanceof Course;
     }
 
+    public function updateCourse(int $courseId, CourseInputDTO $DTO): bool
+    {
+        $course = $this->courseService->updateCourse($courseId, $DTO);
+
+        return $course instanceof Course;
+    }
+
     public function addStudent(int $courseId, int $studentId): ?Course
     {
         $course = $this->courseService->addStudent($courseId, $studentId);
@@ -68,6 +82,25 @@ class Manager
         $course = $this->courseService->deleteTeacher($courseId, $userId);
 
         return $course ;
+    }
+
+    public function handlePayment(string $userLogin, Course $course, string $paymentType, float $discountPercent = 0, int $installments = 1): bool
+    {
+
+       $user = $this->userService->findUsersByLogin($userLogin);
+        switch ($paymentType) {
+            case 'full':
+                return $this->paymentService->payFullPrice($user, $course);
+
+            case 'discount':
+                return $this->paymentService->payWithDiscount($user, $course, $discountPercent);
+
+            case 'installments':
+                return $this->paymentService->payInInstallments($user, $course, $installments);
+
+            default:
+                return false;
+        }
     }
 
 

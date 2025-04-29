@@ -111,12 +111,14 @@ class LessonService
         }
         $lesson = $this->lessonRepository->find($lessonId);
         if (!($lesson instanceof Lesson)) {
-            throw new \Exception("Lesson not found");
+          //  throw new \Exception("Lesson not found");
+            return  null;
         }
 
         $course = $this->courseRepository->find($lessonDTO->courseId);
         if (!($course instanceof Course)) {
-            throw new \Exception("Course not found");
+           // throw new \Exception("Course not found");
+            return  null;
         }
         $lesson->setTitle($lessonDTO->title);
         $lesson->setOrder($lessonDTO->order);

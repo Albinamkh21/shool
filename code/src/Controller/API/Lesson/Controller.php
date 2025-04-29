@@ -30,8 +30,8 @@ class Controller
         $lessonDto = new LessonInputDTO(
             $data['title'] ?? '',
             $data['description'] ?? '',
-            $data['courseId'] ?? 0,
-            $data['order'] ?? 0,
+            (int)   ($data['courseId'] ?? 0),
+            (int) ($data['order'] ?? 0),
             json_decode($data['contents'] ?? '', true)
         );
 
@@ -57,20 +57,25 @@ class Controller
     #[Route(path: 'api/lesson', methods: ['DELETE'])]
     public function delete(Request $request): Response
     {
-        $lessonId = $request->query->get('id');
+        $lessonId = (int) $request->request->get('id');
+        if (!$lessonId) {
+            return new JsonResponse(['errors' => 'ID is required'], Response::HTTP_BAD_REQUEST);
+        }
+
+
         $result = $this->manager->deleteLessonById($lessonId);
         if ($result) {
             return new JsonResponse(['success' => true]);
         }
 
-        return new JsonResponse(null, Response::HTTP_NOT_FOUND);
+        return new JsonResponse(['errors' => 'Invalid ID'], Response::HTTP_NOT_FOUND);
     }
 
     #[Route(path: 'api/lesson', methods: ['GET'])]
     public function get(Request $request): Response
     {
-        $lessonId = $request->query->get('id');
-        if ($lessonId === null) {
+        $lessonId = (int)$request->query->get('id');
+        if ($lessonId === 0) {
             return new JsonResponse(array_map(static fn (Lesson $lesson): array => $lesson->toArray(), $this->manager->getAllLessons()));
         }
 
@@ -80,22 +85,35 @@ class Controller
             return new JsonResponse($lesson->toArray());
         }
 
-        return new JsonResponse(null, Response::HTTP_NOT_FOUND);
+        return new JsonResponse(['errors' => 'Invalid ID'], Response::HTTP_NOT_FOUND);
     }
 
 
     #[Route(path: 'api/lesson', methods: ['PATCH'])]
     public function update(Request $request): Response
     {
-        $lessonId = $request->query->get('id');
-        $title = $request->query->get('title');
-        $result = $this->manager->updateLessonTitle($lessonId, $title);
+
+        $data =  $request->request->all();
+        $lessonId = (int) ($data['id'] ?? 0);
+
+        if (!$lessonId) {
+            return new JsonResponse(['errors' => 'ID is required'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $lessonDto = new LessonInputDTO(
+            $data['title'] ?? '',
+            $data['description'] ?? '',
+            $data['courseId'] ?? 0,
+            $data['order'] ?? 0,
+            json_decode($data['contents'] ?? [], true)
+        );
+        $result = $this->manager->updateLesson($lessonId, $lessonDto);
 
         if ($result) {
             return new JsonResponse(['success' => true]);
         }
 
-        return new JsonResponse(null, Response::HTTP_NOT_FOUND);
+        return new JsonResponse(['errors' => 'Invalid ID'], Response::HTTP_NOT_FOUND);
     }
 
 

@@ -14,7 +14,8 @@ class CourseService
 {
     public function __construct(
         private readonly CourseRepository $courseRepository,
-        private readonly UserRepository $userRepository
+        private readonly UserRepository $userRepository,
+
     )
     {
     }
@@ -22,7 +23,7 @@ class CourseService
     {
         $course = new Course();
         $course->setTitle($courseDTO->title);
-       // $course->set($courseDTO->title);
+        $course->setPrice($courseDTO->price);
         $course->setCreatedAt();
         $course->setUpdatedAt();
         $this->courseRepository->create($course);
@@ -59,6 +60,22 @@ class CourseService
             return null;
         }
         $this->courseRepository->updateTitle($course, $title);
+
+        return $course;
+    }
+
+    public function updateCourse(int $courseId, CourseInputDTO $courseDTO): Course|null
+    {
+        $course = $this->courseRepository->find($courseId);
+        if (!($course instanceof Course)) {
+            return null;
+        }
+        $course->setTitle($courseDTO->title);
+        $course->setPrice($courseDTO->price);
+        $course->setDescription($courseDTO->description);
+        $course->setCreatedAt();
+        $course->setUpdatedAt();
+        $this->courseRepository->update($course);
 
         return $course;
     }
@@ -134,4 +151,5 @@ class CourseService
         return $course;
 
     }
+
 }

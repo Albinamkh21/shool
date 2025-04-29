@@ -26,6 +26,11 @@ class Course implements EntityInterface
     #[Assert\Length(max: 50)]
     private string $title;
 
+    #[ORM\Column(type: 'text',  nullable: true)]
+    private string $description;
+
+
+
     #[ORM\OneToMany(mappedBy: 'course', targetEntity: 'Lesson')]
     private Collection $lessons;
 
@@ -35,6 +40,12 @@ class Course implements EntityInterface
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'teachCourses')]
     #[ORM\JoinColumn(name: 'teacher_id', referencedColumnName: 'id', nullable: true)]
     private ?User $teacher = null;
+
+    #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
+    private string $price;
+
+    #[ORM\OneToMany(targetEntity: Payment::class, mappedBy: 'course')]
+    private Collection $payments;
 
     #[ORM\Column(name: 'created_at', type: 'datetime', nullable: false)]
     private DateTime $createdAt;
@@ -50,6 +61,7 @@ class Course implements EntityInterface
     {
        $this->lessons = new ArrayCollection();
        $this->students = new ArrayCollection();
+       $this->payments = new ArrayCollection();
     }
     public function getId(): int
     {
@@ -70,6 +82,24 @@ class Course implements EntityInterface
     {
         $this->title = $title;
     }
+
+
+    /**
+     * @return string
+     */
+    public function getDescription(): string
+    {
+        return $this->description;
+    }
+
+    /**
+     * @param string $description
+     */
+    public function setDescription(string $description): void
+    {
+        $this->description = $description;
+    }
+
     public function getLessons(): Collection
     {
         return $this->lessons;
@@ -117,6 +147,22 @@ class Course implements EntityInterface
     }
 
 
+    public function getPrice(): string
+    {
+        return $this->price;
+    }
+
+    public function setPrice(string $price): self
+    {
+        $this->price = $price;
+        return $this;
+    }
+
+    public function getPayments(): Collection
+    {
+        return $this->payments;
+    }
+
    public function getCreatedAt(): DateTime {
         return $this->createdAt;
    }
@@ -150,6 +196,11 @@ class Course implements EntityInterface
     #[ORM\PreUpdate]
     public function setUpdatedAt(): void {
         $this->updatedAt = new DateTime();
+    }
+
+    public function isFree(): bool
+    {
+        return $this->price == 0;
     }
 
     public function toArray(): array

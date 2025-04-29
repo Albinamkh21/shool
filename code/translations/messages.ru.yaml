@@ -1,3 +1,10 @@
+payment:
+  error:
+    common: "Оплата не прошла."
+course:
+  title:
+    not_blank: "Заголовок курса не должен быть пустым."
+
 lesson:
   title:
     not_blank: "Заголовок урока не должен быть пустым."

@@ -20,6 +20,7 @@
         "symfony/monolog-bundle": "^3.10",
         "symfony/runtime": "7.1.*",
         "symfony/security-bundle": "7.1.*",
+        "symfony/serializer": "7.1.*",
         "symfony/translation": "7.1.*",
         "symfony/twig-bundle": "7.1.*",
         "symfony/validator": "7.1.*",
@@ -42,7 +43,10 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "UnitTests\\": "tests/unit"
+
+            "UnitTests\\": "tests/phpunit",
+            "App\\Tests\\": "tests/",
+            "App\\Tests\\Support\\": "tests/Support/"
         }
     },
     "replace": {
@@ -77,7 +81,13 @@
         }
     },
     "require-dev": {
-        "doctrine/doctrine-fixtures-bundle": "^3.6",
+        "codeception/codeception": "^5.2",
+        "codeception/module-asserts": "^3.0",
+        "codeception/module-datafactory": "^3.0",
+        "codeception/module-doctrine2": "^3.0",
+        "codeception/module-phpbrowser": "^3.0",
+        "codeception/module-rest": "^3.4",
+        "codeception/module-symfony": "^3.5",
         "fakerphp/faker": "^1.24",
         "mockery/mockery": "^1.6",
         "symfony/maker-bundle": "^1.62",

@@ -32,12 +32,19 @@ class Manager
      */
     public function getAllLessons(): array
     {
+        print('getAllLessons');
         return $this->lessonService->findAll();
     }
 
     public function updateLessonTitle(int $lessonId, string $title): bool
     {
         $lesson = $this->lessonService->updateLessonTitle($lessonId, $title);
+
+        return $lesson instanceof Lesson;
+    }
+    public function updateLesson(int $lessonId, LessonInputDTO $lessonInputDTO): bool
+    {
+        $lesson = $this->lessonService->updateLesson($lessonId, $lessonInputDTO);
 
         return $lesson instanceof Lesson;
     }

@@ -42,11 +42,11 @@ class UserFactory
         $faker = FakerFactory::create();
 
         $dto = new CreateUserDTO(
-            $overrides['login']    ?? $faker->userName,
-            $overrides['fullName'] ?? $faker->name,
-            $overrides['email']    ?? $faker->email,
+            $overrides['login']    ?? $faker->userName(),
+            $overrides['fullName'] ?? $faker->name(),
+            $overrides['email']    ?? $faker->email(),
             $overrides['phone']    ?? $faker->numerify('##########'),
-            $overrides['password'] ?? $faker->password,
+            $overrides['password'] ?? $faker->password(),
             $overrides['age']      ?? $faker->numberBetween(18, 80),
             $overrides['isActive'] ?? true,
             $overrides['roles']    ?? ['ROLE_USER']

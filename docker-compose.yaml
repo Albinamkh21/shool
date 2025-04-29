@@ -52,6 +52,21 @@ services:
       - dump_test:/data/testsym.local
       - postgresql_test:/var/lib/postgresql@15/data
 
+  test_postgres_test:
+    image: postgres:12
+    ports:
+      - 25432:5432
+    container_name: test_postgres_test
+    working_dir:  /data/testsym.local
+    restart: always
+    environment:
+      POSTGRES_DB: ${DATABASE_TEST_NAME}
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+    volumes:
+      - dump_test2:/data/testsym.local
+      - postgresql_test2:/var/lib/postgresql@15/data
+
 
   memcache:
     image: memcached:latest
@@ -67,4 +82,6 @@ services:
 volumes:
   dump_test:
   postgresql_test:
+  dump_test2:
+  postgresql_test2:
 

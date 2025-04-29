@@ -139,10 +139,12 @@ class LessonServiceTest extends TestCase
     //  $this->validator->method('validate')->willReturn(new ConstraintViolationList());
         $this->lessonRepository->method('find')->with($lessonId)->willReturn(null);
 
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage("Lesson not found");
 
-        $this->lessonService->updateLesson($lessonId, $lessonDTO);
+        //$this->expectException(\Exception::class);
+        //$this->expectExceptionMessage("Lesson not found");
+
+        $result  = $this->lessonService->updateLesson($lessonId, $lessonDTO);
+        $this->assertNull($result);
     }
     public function testUpdateLessonCourseNotFound(): void
     {
@@ -152,14 +154,15 @@ class LessonServiceTest extends TestCase
 
         $lesson = $this->createMock(Lesson::class);
 
-        //$this->validator->method('validate')->willReturn(new ConstraintViolationList());
+
         $this->lessonRepository->method('find')->with($lessonId)->willReturn($lesson);
         $this->courseRepository->method('find')->with($lessonDTO->courseId)->willReturn(null);
 
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage("Course not found");
+        //$this->expectException(\Exception::class);
+        //$this->expectExceptionMessage("Course not found");
 
-        $this->lessonService->updateLesson($lessonId, $lessonDTO);
+        $result  = $this->lessonService->updateLesson($lessonId, $lessonDTO);
+        $this->assertNull($result);
     }
 
 
